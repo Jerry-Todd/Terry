@@ -21,8 +21,8 @@ server.on('connection', async (ws) => {
         Your name is Travis, you are a AI assistant for a minecraft mod called computer craft
         If you want to respond to the user you must put your response in "<response> </response>"
         for expample: <response> Hello, my name is travis! </response>
-        To write code you must put your code in "<code> </code>"
-        for example: <code> print("Hello, my name is Travis!") </code>
+        To write code you must put your code in "<code name=""> </code>"
+        for example: <code name="script.lua"> print("Hello, my name is Travis!") </code>
         All code should be written in Lua and be compatible with ComputerCraft computers
         To execute a terminal command you must put your command in "<command> </command>"
         for example: <command> ls </command>
@@ -32,22 +32,30 @@ server.on('connection', async (ws) => {
     ws.on('message', (message) => {
         console.log(`Received: ${message}`)
         Chat(convo, message.toString()).then((result) => {
-            console.log(result)
-            let response = {}
-            response.type = 'chat'
-            response.text = ExtractResponse(result)
-            console.log(response.text)
+            console.log('Received: ' + result)
+            let response = {
+                type: 'chat',
+                text: ExtractResponse(result)
+            }
             ws.send(JSON.stringify(response))
+            console.log('Sent: ' + response.type)
+            console.log('Sent: ' + response.text)
+            
 
             let file = ExtractCode(result)
 
-            if (!file) return
-            response = {
-                name: file[1],
-                code: file[2]
+            if (file != null) {
+                response = {
+                    type: 'file',
+                    name: file[1],
+                    code: file[2]
+                }
+    
+                ws.send(JSON.stringify(response))
+                console.log('Sent: ' + response.type)
+                console.log('Sent: ' + response.code)
             }
 
-            ws.send(JSON.stringify(response))
         });
     });
 
@@ -63,6 +71,7 @@ async function Chat(convo,text) {
     return result.response.text()
 }
 
+// Extract functions
 function ExtractResponse(text) {
     const match = text.match(/<response>([\s\S]*?)<\/response>/);
     if (match) {
@@ -70,7 +79,6 @@ function ExtractResponse(text) {
     }
     return null
 }
-
 function ExtractCode(text) {
     const match = text.match(/<code\s+name="([^"]+)">([\s\S]*?)<\/code>/);
     if (match) {

@@ -38,13 +38,11 @@ function Chat()
 
         ws.send(input)
 
-        local data
-
         repeat
             event, url, response = os.pullEvent("websocket_message")
         until url == myURL and textutils.unserialiseJSON(response).type == "chat"
 
-        data = textutils.unserialize(response)
+        data = textutils.unserializeJSON(response)
 
         term.setTextColor(colors.lightBlue)
 
@@ -54,22 +52,23 @@ function Chat()
 end
 
 function AI_Functions()
-    local data, event, url, response
+    while true do
+        local data, event, url, response
 
-    repeat
-        event, url, response = os.pullEvent("websocket_message")
-    until url == myURL and textutils.unserialiseJSON(response).type == "file"
+        repeat
+            event, url, response = os.pullEvent("websocket_message")
+        until url == myURL and textutils.unserialiseJSON(response).type == "file"
 
-    data = textutils.unserialize(response)
+        data = textutils.unserializeJSON(response)
 
-    if Write_File(data.name, data.code) then
-        term.setTextColor(colors.green)
-        print("File \"" .. data.name .. "\" Created")
-    else
-        term.setTextColor(colors.red)
-        print("Failed to create file \"" .. data.name .. "\"")
+        if Write_File(data.name, data.code) then
+            term.setTextColor(colors.green)
+            print("File \"" .. data.name .. "\" Created")
+        else
+            term.setTextColor(colors.red)
+            print("Failed to create file \"" .. data.name .. "\"")
+        end
     end
-
 end
 
 parallel.waitForAny(Chat, AI_Functions)
