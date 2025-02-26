@@ -8,31 +8,71 @@ else
     print("Connected to " .. myURL)
 end
 
-local event, url, message
-local input
+function Write_File(path, data)
+    fs.delete(path)
 
-while true do
+    local file = fs.open(path, "w")
 
-    term.setTextColor(colors.blue)
-
-    io.write("> ")
-    input = read()
-
-    if input == "exit" then
-        break
+    if file then
+        file.write(data) -- Write content to the file
+        file.close() -- Close the file
+        return true
     end
+    return false
+end
 
-    ws.send(input)
+function Chat()
+    local data, event, url, response
+    local input
+
+    while true do
+
+        term.setTextColor(colors.blue)
+
+        io.write("> ")
+        input = read()
+
+        if input == "exit" then
+            break
+        end
+
+        ws.send(input)
+
+        local data
+
+        repeat
+            event, url, response = os.pullEvent("websocket_message")
+        until url == myURL and textutils.unserialiseJSON(response).type == "chat"
+
+        data = textutils.unserialize(response)
+
+        term.setTextColor(colors.lightBlue)
+
+        textutils.slowPrint(data.text)
+
+    end
+end
+
+function AI_Functions()
+    local data, event, url, response
 
     repeat
-        event, url, message = os.pullEvent("websocket_message")
-    until url == myURL
+        event, url, response = os.pullEvent("websocket_message")
+    until url == myURL and textutils.unserialiseJSON(response).type == "file"
 
-    term.setTextColor(colors.red)
+    data = textutils.unserialize(response)
 
-    print(message)
+    if Write_File(data.name, data.code) then
+        term.setTextColor(colors.green)
+        print("File \"" .. data.name .. "\" Created")
+    else
+        term.setTextColor(colors.red)
+        print("Failed to create file \"" .. data.name .. "\"")
+    end
 
 end
+
+parallel.waitForAny(Chat, AI_Functions)
 
 ws.close()
 
