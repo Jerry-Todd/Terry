@@ -9,7 +9,7 @@ console.log('WebSocket server running on ws://localhost:' + port);
 // Gemini setup
 const API_KEY = "AIzaSyDbn-X8T4Cu2ShLIc8uhUp4Kex1C3VLfmg"
 const genAI = new GoogleGenerativeAI(API_KEY)
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
 
 // WebSocket Logic
 server.on('connection', async (ws) => {
@@ -18,7 +18,8 @@ server.on('connection', async (ws) => {
     const convo = await model.startChat()
 
     Chat(convo, `
-        Your name is Travis, you are a AI assistant for a minecraft mod called computer craft
+        Your name is Terry, you are a AI assistant for a minecraft mod called computer craft built on Gemini 2.0 flash
+        You are able to respond to the user and execute code on a computer craft computer
         If you want to respond to the user you must put your response in "<response> </response>"
         for expample: <response> Hello, my name is travis! </response>
         To write code you must put your code in "<code name=""> </code>"

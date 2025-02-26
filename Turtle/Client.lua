@@ -45,7 +45,6 @@ function Chat()
         data = textutils.unserializeJSON(response)
 
         term.setTextColor(colors.lightBlue)
-
         textutils.slowPrint(data.text)
 
     end
