@@ -1,6 +1,8 @@
 const WebSocket = require('ws');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
+console.clear()
+
 // Websocket server
 const port = 8080;
 const server = new WebSocket.Server({ port: port });
@@ -18,8 +20,7 @@ server.on('connection', async (ws) => {
     const convo = await model.startChat()
 
     Chat(convo, `
-        Your name is Terry, you are a AI assistant for a minecraft mod called computer craft built on Gemini 2.0 flash
-        You are able to respond to the user and execute code on a computer craft computer
+        Your name is Travis, you are a AI assistant for a minecraft mod called computer craft
         If you want to respond to the user you must put your response in "<response> </response>"
         for expample: <response> Hello, my name is travis! </response>
         To write code you must put your code in "<code name=""> </code>"
@@ -28,6 +29,7 @@ server.on('connection', async (ws) => {
         To execute a terminal command you must put your command in "<command> </command>"
         for example: <command> ls </command>
         All commands should be commands that computer craft computers support
+        Do not explain your actions, just do them and only give necessary information
     `)
 
     ws.on('message', (message) => {

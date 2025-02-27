@@ -1,3 +1,7 @@
+
+term.clear()
+term.setCursorPos(1, 1)
+
 local myURL = "ws://localhost:8080"
 local ws = http.websocket(myURL)
 
@@ -6,6 +10,22 @@ if ws == nil then
     return
 else
     print("Connected to " .. myURL)
+end
+
+Action_Log = {}
+Action_Color_Log = {}
+
+function LogAction(text, color)
+    table.insert(Action_Log, text)
+    table.insert(Action_Color_Log, color)
+end
+
+function PopAction()
+    local text = Action_Log[1]
+    local color = Action_Color_Log[1]
+    table.remove(Action_Log, 1)
+    table.remove(Action_Color_Log, 1)
+    return text, color
 end
 
 function Write_File(path, data)
@@ -45,7 +65,14 @@ function Chat()
         data = textutils.unserializeJSON(response)
 
         term.setTextColor(colors.lightBlue)
+
         textutils.slowPrint(data.text)
+
+        for i = 1, #Action_Log do
+            local text, color = PopAction()
+            term.setTextColor(color)
+            print(text)
+        end
 
     end
 end
@@ -61,11 +88,9 @@ function AI_Functions()
         data = textutils.unserializeJSON(response)
 
         if Write_File(data.name, data.code) then
-            term.setTextColor(colors.green)
-            print("File \"" .. data.name .. "\" Created")
+            LogAction("File \"" .. data.name .. "\" Created", colors.green)
         else
-            term.setTextColor(colors.red)
-            print("Failed to create file \"" .. data.name .. "\"")
+            LogAction("Failed to create file \"" .. data.name .. "\"", colors.red)
         end
     end
 end
